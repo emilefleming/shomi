@@ -1,0 +1,46 @@
+form {
+  position: relative;
+  height: 50px;
+  border-top: 1px solid white;
+  border-bottom: 1px solid white;
+  box-sizing: border-box;
+}
+
+.SearchForm-input-wrapper {
+  position: absolute;;
+  top: 0;
+  right: 50px;
+  left: 0;
+  bottom: 0;
+
+  display: flex;;
+  justify-content: center;
+  align-items: center;
+}
+
+input {
+  background: none;
+  border: none;
+  height: 100%;
+  padding: 0 15px;
+  width: 100%;
+  font-size: 20px;
+}
+
+input:focus {
+  background-color: #F9F9F9;
+}
+
+button {
+  position: absolute;
+  height: 100%;
+  right: 0;
+  width: 50px;
+  background-color: #007DC5;
+  color: white;
+  border: none;
+}
+
+input:focus, button:focus {
+  outline: 0;
+}

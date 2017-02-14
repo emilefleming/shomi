@@ -1,0 +1,38 @@
+.SearchResults ul {
+  list-style: none;
+  padding: 0;
+  margin: 0
+}
+
+.SearchResults li {
+  background-color: white;
+  border-bottom: 1px solid #CCC;
+  display: flex;
+}
+
+.SearchResults img {
+  height: 150px;
+}
+
+.SearchResults h3 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.SearchResults p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.SearchResults .details {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.SearchResults .subdetails {
+  display: flex;
+  justify-content: space-between;
+}
