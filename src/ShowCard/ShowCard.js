@@ -15,7 +15,7 @@ function ShowCard({ show, addShowToFavorites }) {
       <img src={show.poster} alt={`${show.seriesName} Poster`} />
       <div className="details">
         <h3>{ show.seriesName }</h3>
-        <p>{ trimString(show.overview, 70)}</p>
+        <p>{ trimString(show.overview, 90)}</p>
         <div className="subdetails">
           <div>{ show.network }</div>
           <div>{ show.firstAired.slice(0, 4) }</div>
