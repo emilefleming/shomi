@@ -1,13 +1,6 @@
 import React from 'react';
 import './SearchResults.css'
-
-function trimString(str, length) {
-  if (!str || str.length < length) {
-    return str;
-  }
-
-  return `${str.slice(0, length - 3)}...`;
-}
+import ShowCard from '../ShowCard/ShowCard.js'
 
 function SearchResults(props) {
   return (
@@ -19,21 +12,7 @@ function SearchResults(props) {
               return null;
             }
             return (
-              <li key={ show.id }>
-                <img src={show.poster} alt={`${show.seriesName} Poster`} />
-                <div className="details">
-                  <h3>{ show.seriesName }</h3>
-                  <p>{ trimString(show.overview, 70)}</p>
-                  <div className="subdetails">
-                    <div>{ show.network }</div>
-                    <div>{ show.firstAired.slice(0, 4) }</div>
-                    <a
-                      href="#"
-                      onClick={ () => {props.addShowToFavorites(show.id)} }
-                    >Favorite <i className="mdi mdi-heart"></i></a>
-                  </div>
-                </div>
-              </li>
+              <ShowCard key={ show.id } show={ show }/>
             )
           })
         }
