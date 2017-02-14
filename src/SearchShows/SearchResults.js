@@ -28,6 +28,10 @@ function SearchResults(props) {
                   <div className="subdetails">
                     <div>{ show.network }</div>
                     <div>{ show.firstAired.slice(0, 4) }</div>
+                    <a
+                      href="#"
+                      onClick={ () => {props.addShowToFavorites(show.id)} }
+                    >Favorite</a>
                   </div>
                 </div>
               </li>
