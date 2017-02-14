@@ -37,6 +37,9 @@ class SearchShows extends Component {
   }
 
   addShowToFavorites(id) {
+    if (this.state.favorites.indexOf(id) > -1) {
+      return;
+    }
     console.log(id);
     const favorites = [...this.state.favorites, id]
     this.setState({ favorites });

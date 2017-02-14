@@ -18,20 +18,19 @@ function SearchResults(props) {
             if (!show.status || show.status === 'Ended') {
               return null;
             }
-            console.log(show);
             return (
               <li key={ show.id }>
                 <img src={show.poster} alt={`${show.seriesName} Poster`} />
                 <div className="details">
                   <h3>{ show.seriesName }</h3>
-                  <p>{ trimString(show.overview, 90)}</p>
+                  <p>{ trimString(show.overview, 70)}</p>
                   <div className="subdetails">
                     <div>{ show.network }</div>
                     <div>{ show.firstAired.slice(0, 4) }</div>
                     <a
                       href="#"
                       onClick={ () => {props.addShowToFavorites(show.id)} }
-                    >Favorite</a>
+                    >Favorite <i className="mdi mdi-heart"></i></a>
                   </div>
                 </div>
               </li>
