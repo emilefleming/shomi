@@ -28,7 +28,7 @@ class SearchShows extends Component {
   handleSearchSubmit(event) {
     event.preventDefault();
 
-    const query = `http://localhost:8001/search/${ encodeURIComponent(this.state.searchStr) }`
+    const query = `api/search/${ encodeURIComponent(this.state.searchStr) }`
 
     axios.get(query)
       .then(({ data }) => {
