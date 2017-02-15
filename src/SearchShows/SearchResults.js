@@ -12,7 +12,10 @@ function SearchResults(props) {
               return null;
             }
             return (
-              <ShowCard key={ show.id } show={ show }/>
+              <ShowCard
+                key={ show.id }
+                show={ show }
+                addShowToFavorites={ props.addShowToFavorites }/>
             )
           })
         }

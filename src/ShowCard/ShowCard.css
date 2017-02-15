@@ -1,37 +1,79 @@
-.SearchResults li {
+
+li.ShowCard {
   background-color: white;
-  border-bottom: 1px solid #CCC;
+  border-bottom: 1px solid #EEE;
   display: flex;
+  height: 125px;
+  width: 100%
 }
 
-.SearchResults img {
-  height: 150px;
+@media (min-width: 750px) {
+  li.ShowCard {
+    width: 50%;
+    float: left
+  }
 }
 
-.SearchResults h3 {
-  font-size: 15px;
-  margin: 0;
+@media (min-width: 1100px) {
+  li.ShowCard {
+    width: 33.3%;
+  }
 }
 
-.SearchResults p {
+.ShowCard img {
+  height: 100%;
+}
+
+.ShowCard .hover-options {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border-top: 1px solid #EEE;
+}
+
+.ShowCard h3 {
+  font-size: 16px;
+  margin: 0 0 5px 0;
+}
+
+.ShowCard p {
+  margin: 10px 0 0 0;
+  font-size: 12px;
+  flex: 1;
+}
+
+.ShowCard .details {
+  padding: 10px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.ShowCard .subdetails {
+  color: #777;
+  flex: 1;
+  position: relative;
   margin: 0;
   font-size: 12px;
 }
 
-.SearchResults .details {
-  padding: 10px;
+.ShowCard .favorite-button {
+  cursor: pointer;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.SearchResults .subdetails {
-  display: flex;
-  justify-content: space-between;
-}
-
-.SearchResults a {
-  text-decoration: none;
+  align-items: center;
+  font-size: 20px;
+  font-family: 'Open Sans';
+  font-weight: 700;
   color: #EF382B;
+}
+
+.ShowCard .favorite-button i {
+  font-size: 25px;
+  margin-right: 6px;
 }
