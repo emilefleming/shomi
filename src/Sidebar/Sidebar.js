@@ -11,6 +11,7 @@ export default function Sidebar(props) {
       <div className="content">
         <Header toggleSidebar={ props.toggleSidebar }/>
         <ul>
+          <li><Link to="/">Home</Link></li>
           <li><Link to="/search">Search</Link></li>
         </ul>
       </div>

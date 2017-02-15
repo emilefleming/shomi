@@ -18,16 +18,16 @@ class App extends Component {
   }
 
   render() {
-    const { state, toggleSidebar } = this;
+    const { state, props, toggleSidebar } = this;
     return (
       <div className="App">
         {
-          this.state.sideBarIsOpen
+          state.sideBarIsOpen
           ? <Sidebar toggleSidebar={ toggleSidebar } />
           : null
         }
         <Header toggleSidebar={ toggleSidebar } />
-        { this.props.children }
+        { props.children }
       </div>
 
     );
