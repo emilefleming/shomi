@@ -13,6 +13,7 @@ export default function Sidebar(props) {
         <ul>
           <li><Link to="/">Home</Link></li>
           <li><Link to="/search">Search</Link></li>
+          <li><Link to="/favorites">Favorites</Link></li>
         </ul>
       </div>
     </div>
