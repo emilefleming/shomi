@@ -25,7 +25,7 @@ class ShowCard extends Component {
         onMouseLeave={this.handleHover}
       >
         <img
-          src={show.poster}
+          src={show.poster || '/img/no_poster.png'}
           alt={`${show.seriesName} Poster`}
         />
         <div className="details">
