@@ -1,0 +1,8 @@
+.Header i {
+  font-size: 25px;
+  cursor: pointer;
+}
+
+.Header i:hover {
+  opacity: .5;
+}

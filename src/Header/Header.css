@@ -1,0 +1,15 @@
+nav.Header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 50px;
+  padding: 0 10px;
+  color: #666;
+}
+
+.Header .logo {
+  font-family: 'Raleway';
+  font-size: 18px;
+  letter-spacing: 2px;
+  font-weight: 100;
+}
