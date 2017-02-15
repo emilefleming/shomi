@@ -32,6 +32,7 @@ class SearchShows extends Component {
 
     axios.get(query)
       .then(({ data }) => {
+        console.log(data);
         this.setState({ searchResults: data })
       })
   }

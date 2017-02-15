@@ -19,6 +19,33 @@ function getToken(req, res, next) {
     .catch(err => next(err))
 };
 
+function getPoster(id, token) {
+  const posterOptions = {
+    url: 'https://api.thetvdb.com/series/' + id + '/images/query?keyType=poster',
+    method: 'get',
+    headers: {
+      'Authorization' : 'Bearer ' + token,
+      'Content-Type' : 'application/json'
+    }
+  };
+
+  return new Promise((resolve, reject) => {
+    request(posterOptions).then(resolve).catch(()=> resolve(null))
+
+  })
+}
+
+function selectBestPoster(postersJSON) {
+  const posters = JSON.parse(postersJSON);
+  const bestPoster = posters.data.reduce((acc, poster) => {
+    if (poster.ratingsInfo.average > acc.ratingsInfo.average) {
+      acc = poster;
+    }
+    return acc;
+  });
+  return 'http://thetvdb.com/banners/' + bestPoster.thumbnail;
+}
+
 router.get('/search/:str', getToken, (req, res, next) => {
   const options = {
     url: 'https://api.thetvdb.com/search/series?name=' + req.params.str,
@@ -28,50 +55,35 @@ router.get('/search/:str', getToken, (req, res, next) => {
       'Content-Type' : 'application/json'
     }
   };
-
   const shows = [];
-  request(options)
+  const posterPromises = [];
+  return request(options)
     .then((data) => {
       const rawShows = JSON.parse(data);
-      let counter = 0;
-      const countTo = rawShows.data.length;
+      const promiseArr = [];
+
       rawShows.data.map((rawShow) => {
         const { id, seriesName, status, network, firstAired, overview } = rawShow;
         const show = { id, seriesName, status, network, firstAired, overview };
-        show.raw = rawShow;
-        const posterOptions = {
-          url: 'https://api.thetvdb.com/series/' + show.id + '/images/query?keyType=poster',
-          method: 'get',
-          headers: {
-            'Authorization' : 'Bearer ' + req.token,
-            'Content-Type' : 'application/json'
-          }
-        };
-        return request(posterOptions)
-        .then((response) => {
-          const resObj = JSON.parse(response);
-          const bestPoster = resObj.data.reduce((acc, poster) => {
-            if (poster.ratingsInfo.average > acc.ratingsInfo.average) {
-              acc = poster;
-            }
-            return acc;
-          });
-          show.poster = 'http://thetvdb.com/banners/' + bestPoster.thumbnail;
-          shows.push(show);
-          counter++;
-          if (counter === countTo) {
-            res.send(JSON.stringify(shows));
-          }
-        })
-        .catch((err) => {
-          console.log(err.stack);
-          counter++;
-        });
+
+        shows.push(show);
+        posterPromises.push(getPoster(id, req.token))
       });
+
+      Promise.all(posterPromises)
+        .then((posters) => {
+          for (let i = 0; i < shows.length; i++) {
+            if (posters[i]) {
+              console.log(posters[i]);
+              shows[i].poster = selectBestPoster(posters[i]);
+            }
+          }
+          return res.send(shows);
+        })
+        .catch((err) => console.log(err))
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch((err) => console.log(err));
+
 });
 
 module.exports = router;
