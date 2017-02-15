@@ -5,9 +5,13 @@ import './App.css';
 import SearchShows from './SearchShows/SearchShows.js';
 import Header from './Header/Header.js';
 import Sidebar from './Sidebar/Sidebar.js';
+import Home from './Home/Home.js';
 
-const routes = (
-  <Route path="/search" component={ SearchShows } />
+const router = (
+  <Router history={ browserHistory }>
+    <Route path="/" component={ Home } />
+    <Route path="/search" component={ SearchShows } />
+  </Router>
 )
 
 
@@ -34,10 +38,7 @@ class App extends Component {
           : null
         }
         <Header toggleSidebar={ toggleSidebar } />
-        <Router history={ browserHistory }>
-          { routes }
-        </Router>
-
+        { router }
       </div>
 
     );
