@@ -6,14 +6,27 @@ class ShowCard extends Component {
     super(props)
 
     this.state = {
-      hovering: false
+      hovering: false,
+      favorites: JSON.parse(localStorage.getItem('favorites')) || []
     }
 
     this.handleHover = this.handleHover.bind(this)
+    this.addShowToFavorites = this.addShowToFavorites.bind(this)
   }
 
   handleHover({ target }) {
     this.setState({ hovering: !this.state.hovering });
+  }
+
+  addShowToFavorites(id) {
+    if (this.state.favorites.indexOf(id) > -1) {
+      return;
+    }
+    console.log(id);
+    const favorites = [...this.state.favorites, id]
+    this.setState({ favorites });
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    console.log(this.state.favorites);
   }
 
   render() {

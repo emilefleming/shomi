@@ -10,13 +10,11 @@ class SearchShows extends Component {
 
     this.state = {
       searchStr: '',
-      searchResults: [],
-      favorites: []
+      searchResults: []
     }
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSearchSubmit = this.handleSearchSubmit.bind(this);
-    this.addShowToFavorites = this.addShowToFavorites.bind(this);
   }
 
   handleChange({ target }) {
@@ -37,22 +35,12 @@ class SearchShows extends Component {
       })
   }
 
-  addShowToFavorites(id) {
-    if (this.state.favorites.indexOf(id) > -1) {
-      return;
-    }
-    console.log(id);
-    const favorites = [...this.state.favorites, id]
-    this.setState({ favorites });
-    console.log(this.state);
-  }
-
   render() {
+    console.log(this);
     const {
       state,
       handleChange,
       handleSearchSubmit,
-      addShowToFavorites
     } = this;
 
     return (
@@ -63,8 +51,8 @@ class SearchShows extends Component {
           handleSearchSubmit={ handleSearchSubmit }
         />
         <SearchResults
+          addShowToFavorites={this.props.route.addShowToFavorites}
           searchResults={ state.searchResults }
-          addShowToFavorites={ addShowToFavorites }
         />
       </div>
     )
