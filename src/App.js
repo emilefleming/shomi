@@ -1,9 +1,14 @@
 import React, { Component } from 'react';
+import { Router, Route, browserHistory} from 'react-router';
 import './App.css';
 
 import SearchShows from './SearchShows/SearchShows.js';
 import Header from './Header/Header.js';
 import Sidebar from './Sidebar/Sidebar.js';
+
+const routes = (
+  <Route path="/search" component={ SearchShows } />
+)
 
 
 class App extends Component {
@@ -29,9 +34,12 @@ class App extends Component {
           : null
         }
         <Header toggleSidebar={ toggleSidebar } />
-        <SearchShows />
+        <Router history={ browserHistory }>
+          { routes }
+        </Router>
 
       </div>
+
     );
   }
 }
