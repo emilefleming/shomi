@@ -30,7 +30,6 @@ class SearchShows extends Component {
 
     axios.get(query)
       .then(({ data }) => {
-        console.log(data);
         this.setState({ searchResults: data })
       })
   }
@@ -38,6 +37,7 @@ class SearchShows extends Component {
   render() {
     const {
       state,
+      props,
       handleChange,
       handleSearchSubmit,
     } = this;
@@ -50,8 +50,9 @@ class SearchShows extends Component {
           handleSearchSubmit={ handleSearchSubmit }
         />
         <SearchResults
-          addShowToFavorites={this.props.addShowToFavorites}
+          toggleShowFavorite={props.toggleShowFavorite}
           searchResults={ state.searchResults }
+          favoritesIds={ props.favoritesIds }
         />
       </div>
     )

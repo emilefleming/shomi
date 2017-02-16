@@ -11,17 +11,19 @@ class App extends Component {
 
     this.state = {
       favorites: [],
+      favoritesIds: [],
       userId: 1
     }
 
     this.toggleSidebar = this.toggleSidebar.bind(this)
-    this.addShowToFavorites = this.addShowToFavorites.bind(this)
+    this.toggleShowFavorite = this.toggleShowFavorite.bind(this)
   }
 
   componentDidMount() {
     axios.get(`/api/favorites/${this.state.userId}`)
       .then(({ data }) => {
-        this.setState({ favorites: data })
+        const favoritesIds = [...data].map(favorite => favorite.id)
+        this.setState({ favorites: data, favoritesIds })
       })
   }
 
@@ -29,14 +31,31 @@ class App extends Component {
     this.setState({ sideBarIsOpen: !this.state.sideBarIsOpen })
   }
 
-  addShowToFavorites(id) {
-    if (this.state.favorites.indexOf(id) > -1) {
-      return;
+  toggleShowFavorite(show) {
+    const showIndexInFavorites = this.state.favoritesIds.indexOf(show.id);
+    if (showIndexInFavorites > -1) {
+      axios.delete(`/api/favorites/${this.state.userId}/${show.id}`)
+        .then(deletedshow => {
+          console.log(deletedshow);
+          const favorites = [...this.state.favorites]
+          const favoritesIds = [...this.state.favoritesIds]
+
+          favorites.splice(showIndexInFavorites, 1)
+          favoritesIds.splice(showIndexInFavorites, 1);
+
+          return this.setState({ favoritesIds, favorites });
+        })
+    }
+    else {
+      console.log(show.id);
+      axios.post(`/api/favorites/${this.state.userId}`, {showId: show.id})
+        .then(newFavorite => {
+          const favorites = [...this.state.favorites, show]
+          const favoritesIds = [...this.state.favoritesIds, show.id]
+          this.setState({ favorites, favoritesIds });
+        })
     }
 
-    const favorites = [...this.state.favorites, id]
-    this.setState({ favorites });
-    localStorage.setItem('favorites', JSON.stringify(favorites));
   }
 
   render() {
@@ -53,8 +72,9 @@ class App extends Component {
 
         {
           React.cloneElement(props.children, {
-            addShowToFavorites: this.addShowToFavorites,
-            favorites: this.state.favorites
+            toggleShowFavorite: this.toggleShowFavorite,
+            favorites: state.favorites,
+            favoritesIds: state.favoritesIds
           })
          }
       </div>

@@ -11,11 +11,14 @@ function SearchResults(props) {
             if (!show.status || show.status === 'Ended') {
               return null;
             }
+
+            show.isFavorite = props.favoritesIds.indexOf(show.id) > -1;
+
             return (
               <ShowCard
                 key={ show.id }
                 show={ show }
-                addShowToFavorites={ props.addShowToFavorites }/>
+                toggleShowFavorite={ props.toggleShowFavorite }/>
             )
           })
         }

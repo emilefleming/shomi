@@ -1,10 +1,13 @@
 const express = require('express');
 const morgan = require('morgan');
+const bodyParser = require('body-parser');
 const app = express();
 const path = require('path');
 
-require('dotenv').config()
+app.disable('x-powered-by');
 
+require('dotenv').config()
+app.use(bodyParser.json());
 app.use(morgan('dev'));
 
 app.use('/api', require('./routes/api'))

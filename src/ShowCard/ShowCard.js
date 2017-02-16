@@ -18,7 +18,7 @@ class ShowCard extends Component {
   }
 
   render() {
-    const { show, addShowToFavorites } = this.props;
+    const { show, toggleShowFavorite } = this.props;
     return (
       <li
         className="ShowCard"
@@ -42,9 +42,11 @@ class ShowCard extends Component {
               ? <div className="hover-options">
                   <div className="favorite-button">
                     <i
-                      className="mdi mdi-heart"
-                      onClick={ () => { addShowToFavorites(show.id) } }
-                    /> follow
+                      className={
+                        `mdi mdi-${show.isFavorite ? 'heart' : 'heart-outline'}`
+                      }
+                      onClick={ () => { toggleShowFavorite(show) } }
+                    /> { show.isFavorite ? 'unfollow' : 'follow' }
                   </div>
               </div>
               : null

@@ -37,6 +37,32 @@ router.get('/favorites/:userId', (req, res, next) => {
     .then(favoriteShows => {
       return res.send(camelizeKeys(favoriteShows));
     })
+    .catch(err => { console.log(err) })
+})
+
+router.post('/favorites/:userId', (req, res, next) => {
+  console.log({ user_id: req.params.userId, show_id: req.body.showId });
+  knex('favorites')
+    .insert({ user_id: req.params.userId, show_id: req.body.showId }, '*')
+    .then(newFavorite => {
+      res.send(newFavorite)
+    })
+    .catch(err => { console.log(err) })
+})
+
+router.delete('/favorites/:userId/:showId', (req, res, next) => {
+  const { userId, showId } = req.params;
+
+  knex('favorites')
+    .del('*')
+    .where({
+      user_id: userId,
+      show_id: showId
+    })
+    .then(deletedRows => {
+      res.send(deletedRows)
+    })
+    .catch(err => { console.log(err) })
 })
 
 router.get('/search/:str', getToken, (req, res, next) => {
