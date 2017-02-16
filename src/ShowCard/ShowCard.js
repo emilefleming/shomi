@@ -38,13 +38,16 @@ class ShowCard extends Component {
         onMouseLeave={this.handleHover}
       >
         <img
-          src={show.poster || '/img/no_poster.png'}
+          src={show.posterUrl || '/img/no_poster.png'}
           alt={`${show.seriesName} Poster`}
         />
         <div className="details">
           <h3>{ show.seriesName }</h3>
           <div className="subdetails">
-            { show.network }  <em>{ show.firstAired.slice(0, 4) }</em>
+            { show.network }
+            <em>
+              { show.firstAired ? show.firstAired.slice(0, 4): '' }
+            </em>
             <p>{ trimString(show.overview, 110)}</p>
             {
               this.state.hovering

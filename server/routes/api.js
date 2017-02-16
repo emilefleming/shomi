@@ -1,5 +1,7 @@
 const router = require('express').Router();
 const request = require('request-promise');
+const knex = require('../../knex');
+const { camelizeKeys, decamelizeKeys } = require('humps')
 
 function getToken(req, res, next) {
   const options = {
@@ -19,34 +21,34 @@ function getToken(req, res, next) {
     .catch(err => next(err))
 };
 
-function getPoster(id, token) {
-  const posterOptions = {
-    url: 'https://api.thetvdb.com/series/' + id + '/images/query?keyType=poster',
-    method: 'get',
-    headers: {
-      'Authorization' : 'Bearer ' + token,
-      'Content-Type' : 'application/json'
-    }
-  };
-
-  return new Promise((resolve, reject) => {
-    request(posterOptions).then(resolve).catch(()=> resolve(null))
-
-  })
-}
-
-function selectBestPoster(postersJSON) {
-  const posters = JSON.parse(postersJSON);
-  const bestPoster = posters.data.reduce((acc, poster) => {
-    if (poster.ratingsInfo.average > acc.ratingsInfo.average) {
-      acc = poster;
-    }
-    return acc;
-  });
-  return 'http://thetvdb.com/banners/' + bestPoster.thumbnail;
-}
-
 router.get('/search/:str', getToken, (req, res, next) => {
+  function getPoster(id) {
+    const posterOptions = {
+      url: 'https://api.thetvdb.com/series/' + id + '/images/query?keyType=poster',
+      method: 'get',
+      headers: {
+        'Authorization' : 'Bearer ' + req.token,
+        'Content-Type' : 'application/json'
+      }
+    };
+
+    return new Promise((resolve, reject) => {
+      request(posterOptions).then(resolve).catch(()=> resolve(null))
+
+    })
+  }
+
+  function selectBestPoster(postersJSON) {
+    const posters = JSON.parse(postersJSON);
+    const bestPoster = posters.data.reduce((acc, poster) => {
+      if (poster.ratingsInfo.average > acc.ratingsInfo.average) {
+        acc = poster;
+      }
+      return acc;
+    });
+    return 'http://thetvdb.com/banners/' + bestPoster.thumbnail;
+  }
+
   const options = {
     url: 'https://api.thetvdb.com/search/series?name=' + req.params.str,
     method: 'get',
@@ -55,34 +57,63 @@ router.get('/search/:str', getToken, (req, res, next) => {
       'Content-Type' : 'application/json'
     }
   };
-  const shows = [];
-  const posterPromises = [];
-  return request(options)
+
+  let shows = [];
+  let rawShows;
+  let notInDb;
+
+  request(options)
     .then((data) => {
-      const rawShows = JSON.parse(data);
-      const promiseArr = [];
+      rawShows = JSON.parse(data);
+      const resultIds = rawShows.data.map(show => show.id);
 
-      rawShows.data.map((rawShow) => {
-        const { id, seriesName, status, network, firstAired, overview } = rawShow;
-        const show = { id, seriesName, status, network, firstAired, overview };
+      return knex('shows').whereIn('tvdb_id', resultIds)
+    })
+    .then((results) => {
+      shows = camelizeKeys(results);
 
-        shows.push(show);
-        posterPromises.push(getPoster(id, req.token))
+      if (shows.length === rawShows.data.length) {
+        res.send(camelizeKeys(shows));
+        throw new Error('exit')
+      }
+
+      const dbIds = results.map(result => result.tvdb_id)
+      notInDb = rawShows.data.filter(show => dbIds.indexOf(show.id) < 0);
+
+      const posterPromises = rawShows.data.map((show) => {
+        return getPoster(show.id)
       });
 
-      Promise.all(posterPromises)
-        .then((posters) => {
-          for (let i = 0; i < shows.length; i++) {
-            if (posters[i]) {
-              console.log(posters[i]);
-              shows[i].poster = selectBestPoster(posters[i]);
-            }
-          }
-          return res.send(shows);
-        })
-        .catch((err) => console.log(err))
+      return Promise.all(posterPromises)
     })
-    .catch((err) => console.log(err));
+    .then((posters) => {
+      for (let i = 0; i < notInDb.length; i++) {
+        if (posters[i]) {
+          notInDb[i].posterUrl = selectBestPoster(posters[i]);
+        }
+      }
+
+      const newShowsPreppedForDb = notInDb.map( show => {
+        const { id, seriesName, posterUrl, network, overview, status, firstAired } = show;
+        return { tvdbId: id, seriesName, posterUrl, network, overview, status, firstAired };
+      })
+
+      if (newShowsPreppedForDb.length) {
+        return knex('shows')
+        .insert(decamelizeKeys(newShowsPreppedForDb))
+        .returning('*');
+      }
+    })
+    .then(newShowsFromDb => {
+      res.send(shows.concat(camelizeKeys(newShowsFromDb)));
+    })
+    .catch((err) => {
+      if (err.name === 'exit') {
+        return;
+      }
+
+      console.log(err);
+    });
 
 });
 
