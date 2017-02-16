@@ -36,7 +36,6 @@ class App extends Component {
     if (showIndexInFavorites > -1) {
       axios.delete(`/api/favorites/${this.state.userId}/${show.id}`)
         .then(deletedshow => {
-          console.log(deletedshow);
           const favorites = [...this.state.favorites]
           const favoritesIds = [...this.state.favoritesIds]
 
@@ -47,7 +46,6 @@ class App extends Component {
         })
     }
     else {
-      console.log(show.id);
       axios.post(`/api/favorites/${this.state.userId}`, {showId: show.id})
         .then(newFavorite => {
           const favorites = [...this.state.favorites, show]
