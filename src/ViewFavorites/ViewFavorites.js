@@ -1,11 +1,8 @@
 import React from 'react';
+import SearchResults from '../SearchShows/SearchResults.js'
 
 export default function ViewFavorites(props) {
   return (
-    <div>Favs
-    {
-      props.favorites.map( id => <div key={ id }>{ id }</div>)
-    }
-    </div>
+    <SearchResults searchResults={props.favorites} />
   )
 }

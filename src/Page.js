@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 import './App.css';
 
 import Header from './Header/Header.js';
@@ -9,11 +10,19 @@ class App extends Component {
     super(props)
 
     this.state = {
-      favorites: JSON.parse(localStorage.getItem('favorites')) || []
+      favorites: [],
+      userId: 1
     }
 
     this.toggleSidebar = this.toggleSidebar.bind(this)
     this.addShowToFavorites = this.addShowToFavorites.bind(this)
+  }
+
+  componentDidMount() {
+    axios.get(`/api/favorites/${this.state.userId}`)
+      .then(({ data }) => {
+        this.setState({ favorites: data })
+      })
   }
 
   toggleSidebar() {

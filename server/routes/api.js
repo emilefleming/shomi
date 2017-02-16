@@ -21,6 +21,24 @@ function getToken(req, res, next) {
     .catch(err => next(err))
 };
 
+router.get('/favorites/:userId', (req, res, next) => {
+  knex('favorites')
+    .select(
+      'shows.id AS id',
+      'shows.poster_url',
+      'shows.series_name',
+      'shows.overview',
+      'shows.first_aired',
+      'shows.network',
+      'shows.status'
+    )
+    .where('user_id', req.params.userId)
+    .innerJoin('shows', 'favorites.show_id', 'shows.id')
+    .then(favoriteShows => {
+      return res.send(camelizeKeys(favoriteShows));
+    })
+})
+
 router.get('/search/:str', getToken, (req, res, next) => {
   function getPoster(id) {
     const posterOptions = {
