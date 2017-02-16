@@ -7,31 +7,17 @@ class ShowCard extends Component {
 
     this.state = {
       hovering: false,
-      posterUrl: props.show.posterUrl || '/img/no_poster.png',
-      favorites: JSON.parse(localStorage.getItem('favorites')) || []
+      posterUrl: props.show.posterUrl || '/img/no_poster.png'
     }
 
     this.handleHover = this.handleHover.bind(this)
-    this.addShowToFavorites = this.addShowToFavorites.bind(this)
   }
 
   handleHover({ target }) {
     this.setState({ hovering: !this.state.hovering });
   }
 
-  addShowToFavorites(id) {
-    if (this.state.favorites.indexOf(id) > -1) {
-      return;
-    }
-    console.log(id);
-    const favorites = [...this.state.favorites, id]
-    this.setState({ favorites });
-    localStorage.setItem('favorites', JSON.stringify(favorites));
-    console.log(JSON.parse(localStorage.getItem('favorites')));
-  }
-
   render() {
-    console.log(this);
     const { show, addShowToFavorites } = this.props;
     return (
       <li

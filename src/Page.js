@@ -28,7 +28,6 @@ class App extends Component {
     const favorites = [...this.state.favorites, id]
     this.setState({ favorites });
     localStorage.setItem('favorites', JSON.stringify(favorites));
-    console.log(this.state.favorites);
   }
 
   render() {
