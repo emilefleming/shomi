@@ -36,7 +36,6 @@ class SearchShows extends Component {
   }
 
   render() {
-    console.log(this);
     const {
       state,
       handleChange,
@@ -51,7 +50,7 @@ class SearchShows extends Component {
           handleSearchSubmit={ handleSearchSubmit }
         />
         <SearchResults
-          addShowToFavorites={this.props.route.addShowToFavorites}
+          addShowToFavorites={this.props.addShowToFavorites}
           searchResults={ state.searchResults }
         />
       </div>

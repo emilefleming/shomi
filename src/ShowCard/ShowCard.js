@@ -31,6 +31,7 @@ class ShowCard extends Component {
   }
 
   render() {
+    console.log(this);
     const { show, addShowToFavorites } = this.props;
     return (
       <li

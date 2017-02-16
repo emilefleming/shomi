@@ -8,13 +8,27 @@ class App extends Component {
   constructor(props) {
     super(props)
 
-    this.state = {};
+    this.state = {
+      favorites: JSON.parse(localStorage.getItem('favorites')) || []
+    }
 
     this.toggleSidebar = this.toggleSidebar.bind(this)
+    this.addShowToFavorites = this.addShowToFavorites.bind(this)
   }
 
   toggleSidebar() {
     this.setState({ sideBarIsOpen: !this.state.sideBarIsOpen })
+  }
+
+  addShowToFavorites(id) {
+    if (this.state.favorites.indexOf(id) > -1) {
+      return;
+    }
+
+    const favorites = [...this.state.favorites, id]
+    this.setState({ favorites });
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    console.log(this.state.favorites);
   }
 
   render() {
@@ -26,8 +40,15 @@ class App extends Component {
           ? <Sidebar toggleSidebar={ toggleSidebar } />
           : null
         }
+
         <Header toggleSidebar={ toggleSidebar } />
-        { props.children }
+
+        {
+          React.cloneElement(props.children, {
+            addShowToFavorites: this.addShowToFavorites,
+            favorites: this.state.favorites
+          })
+         }
       </div>
 
     );
