@@ -60,7 +60,8 @@ router.get('/search/:str', getToken, (req, res, next) => {
 
   let shows = [];
   let rawShows;
-  let notInDb;
+  let showsToGrab;
+  let showsToUpdateOnly = [];
 
   request(options)
     .then((data) => {
@@ -69,16 +70,30 @@ router.get('/search/:str', getToken, (req, res, next) => {
 
       return knex('shows').whereIn('tvdb_id', resultIds)
     })
-    .then((results) => {
-      shows = camelizeKeys(results);
+    .then((resultsDecamelized) => {
+      results = camelizeKeys(resultsDecamelized);
+      const dbIds = [];
+
+      results.map(show => {
+        const now = new Date();
+        const then = new Date(show.updatedAt)
+        // const acceptableAge = 1000 * 60 * 60 * 24;
+        const acceptableAge = 1;
+
+        if (now - then < acceptableAge) {
+          dbIds.push(show.id)
+          return shows.push(show)
+        }
+
+        showsToUpdateOnly.push(show.tvdbId)
+      })
 
       if (shows.length === rawShows.data.length) {
         res.send(camelizeKeys(shows));
         throw new Error('exit')
       }
 
-      const dbIds = results.map(result => result.tvdb_id)
-      notInDb = rawShows.data.filter(show => dbIds.indexOf(show.id) < 0);
+      showsToGrab = rawShows.data.filter(show => dbIds.indexOf(show.id) < 0);
 
       const posterPromises = rawShows.data.map((show) => {
         return getPoster(show.id)
@@ -87,25 +102,42 @@ router.get('/search/:str', getToken, (req, res, next) => {
       return Promise.all(posterPromises)
     })
     .then((posters) => {
-      for (let i = 0; i < notInDb.length; i++) {
+      for (let i = 0; i < showsToGrab.length; i++) {
         if (posters[i]) {
-          notInDb[i].posterUrl = selectBestPoster(posters[i]);
+          showsToGrab[i].posterUrl = selectBestPoster(posters[i]);
         }
       }
 
-      const newShowsPreppedForDb = notInDb.map( show => {
+      const showsToAdd = [];
+      const showsToUpdate = [];
+
+      showsToGrab.map( show => {
         const { id, seriesName, posterUrl, network, overview, status, firstAired } = show;
-        return { tvdbId: id, seriesName, posterUrl, network, overview, status, firstAired };
+        const obj = { tvdbId: id, seriesName, posterUrl, network, overview, status, firstAired };
+
+        if (showsToUpdateOnly && showsToUpdateOnly.indexOf(id) < 0) {
+          showsToAdd.push(obj)
+        }
+        else {
+          console.log(obj.tvdbId);
+          showsToUpdate.push(
+            knex('shows')
+              .where('tvdb_id', Number(obj.tvdbId))
+              .update(decamelizeKeys(obj), '*')
+          )
+        };
       })
 
-      if (newShowsPreppedForDb.length) {
-        return knex('shows')
-        .insert(decamelizeKeys(newShowsPreppedForDb))
-        .returning('*');
-      }
+      return Promise.all(
+        [ ...showsToUpdate,
+          knex('shows')
+            .insert(decamelizeKeys(showsToAdd), '*')
+        ]
+      )
     })
     .then(newShowsFromDb => {
-      res.send(shows.concat(camelizeKeys(newShowsFromDb)));
+      const newShows = [].concat.apply([], newShowsFromDb);
+      res.send(shows.concat(camelizeKeys(newShows)));
     })
     .catch((err) => {
       if (err.name === 'exit') {
