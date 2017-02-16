@@ -7,6 +7,7 @@ class ShowCard extends Component {
 
     this.state = {
       hovering: false,
+      posterUrl: props.show.posterUrl || '/img/no_poster.png',
       favorites: JSON.parse(localStorage.getItem('favorites')) || []
     }
 
@@ -26,7 +27,7 @@ class ShowCard extends Component {
     const favorites = [...this.state.favorites, id]
     this.setState({ favorites });
     localStorage.setItem('favorites', JSON.stringify(favorites));
-    console.log(this.state.favorites);
+    console.log(JSON.parse(localStorage.getItem('favorites')));
   }
 
   render() {
@@ -35,10 +36,10 @@ class ShowCard extends Component {
       <li
         className="ShowCard"
         onMouseEnter={ this.handleHover }
-        onMouseLeave={this.handleHover}
+        onMouseLeave={ this.handleHover }
       >
         <img
-          src={show.posterUrl || '/img/no_poster.png'}
+          src={ this.state.posterUrl }
           alt={`${show.seriesName} Poster`}
         />
         <div className="details">
