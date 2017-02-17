@@ -21,6 +21,74 @@ function getToken(req, res, next) {
     .catch(err => next(err))
 };
 
+
+router.get('/favorites/:userId/episodes', getToken, (req, res, next) => {
+  function buildPromiseToRequestSummary(tvdb_id) {
+    const options = {
+      url: `https://api.thetvdb.com/series/${tvdb_id}/episodes/summary`,
+      method: 'get',
+      headers: {
+        'Authorization' : 'Bearer ' + req.token,
+        'Content-Type' : 'application/json'
+      }
+    };
+
+    return new Promise((resolve, reject) => {
+      request(options).then(resolve).catch(()=> resolve(null))
+    })
+  }
+
+  function buildPromiseToRequestEpisodes(tvdb_id, page) {
+    const options = {
+      url: `https://api.thetvdb.com/series/${tvdb_id}/episodes?page=${page}`,
+      method: 'get',
+      headers: {
+        'Authorization' : 'Bearer ' + req.token,
+        'Content-Type' : 'application/json'
+      }
+    };
+
+    return new Promise((resolve, reject) => {
+      request(options).then(resolve).catch(()=> resolve(null))
+    })
+  }
+
+  const favoritesIds = []
+
+  knex('favorites')
+    .select('shows.tvdb_id')
+    .where('user_id', req.params.userId)
+    .innerJoin('shows', 'favorites.show_id', 'shows.id')
+    .then( favoriteShows => {
+      const getEpisodesForShowPromises = favoriteShows.map(show => {
+        favoritesIds.push(show.tvdb_id);
+
+        return buildPromiseToRequestSummary(show.tvdb_id)
+      });
+
+      return Promise.all(getEpisodesForShowPromises)
+    })
+    .then( summaries => {
+      const episodesForShowsPromises = []
+      for (let i = 0; i < summaries.length; i++) {
+        const summary = JSON.parse(summaries[i]);
+        const hundredsOfEpisodes = Math.ceil(summary.data.airedEpisodes / 100)
+
+        for (let j = 1; j <= hundredsOfEpisodes; j++) {
+          episodesForShowsPromises.push(
+            buildPromiseToRequestEpisodes(favoritesIds[i], j)
+          )
+        }
+      }
+      return Promise.all(episodesForShowsPromises);
+    })
+    .then( episodes => {
+      const parsedEpisodes = episodes.map( episode => JSON.parse(episode).data);
+      res.send(parsedEpisodes);
+    })
+
+})
+
 router.get('/favorites/:userId', (req, res, next) => {
   knex('favorites')
     .select(
