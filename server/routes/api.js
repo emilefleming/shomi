@@ -162,7 +162,19 @@ router.get('/favorites/:userId/episodes', getToken, (req, res, next) => {
     })
     .then((response) => {
       return knex('episodes')
-        .whereIn('tvdb_id', episodeIds);
+        .select([
+          'episodes.id AS id',
+          'episodes.show_id',
+          'episodes.episode_name',
+          'episodes.first_aired',
+          'episodes.overview',
+          'watched_episodes.episode_id AS watched'
+        ])
+        .whereIn('tvdb_id', episodeIds)
+        .leftJoin('watched_episodes', function() {
+          this.on('episodes.id', '=', 'watched_episodes.episode_id')
+          .on('watched_episodes.user_id', '=', knex.raw(req.params.userId))
+        })
     })
     .then((episodes) => {
       res.send(episodes);
