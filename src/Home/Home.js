@@ -1,7 +1,8 @@
 import React from 'react'
+import ViewEpisodes from '../ViewEpisodes/ViewEpisodes.js'
 
 export default function Home() {
   return (
-    <div>Home page</div>
+    <ViewEpisodes />
   )
 }

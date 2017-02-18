@@ -59,6 +59,10 @@ router.get('/favorites/:userId/episodes', getToken, (req, res, next) => {
       overview
     } = obj
 
+    if (!id || !episodeName || !firstAired) {
+      return null;
+    }
+
     return {
       tvdbId: id,
       airedSeasonId: airedSeasonID,
@@ -100,7 +104,9 @@ router.get('/favorites/:userId/episodes', getToken, (req, res, next) => {
           const episodes = rawEpisodes.map(episode =>
             refactorTvdbEpisodeObj(episode, tvdb_id)
           );
-          resolve(episodes);
+          const episodesThatExist = episodes.filter(Boolean);
+
+          resolve(episodesThatExist);
         })
 
 
@@ -177,7 +183,7 @@ router.get('/favorites/:userId/episodes', getToken, (req, res, next) => {
         })
     })
     .then((episodes) => {
-      res.send(episodes);
+      res.send(camelizeKeys(episodes));
     })
 
     // .then( summaries => {
