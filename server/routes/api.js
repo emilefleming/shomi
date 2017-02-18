@@ -21,71 +21,223 @@ function getToken(req, res, next) {
     .catch(err => next(err))
 };
 
+function setOptions(path, token) {
+  return {
+    url: `https://api.thetvdb.com${path}`,
+    method: 'get',
+    headers: {
+      'Authorization' : 'Bearer ' + token,
+      'Content-Type' : 'application/json'
+    }
+  };
+}
+
 
 router.get('/favorites/:userId/episodes', getToken, (req, res, next) => {
-  function buildPromiseToRequestSummary(tvdb_id) {
-    const options = {
-      url: `https://api.thetvdb.com/series/${tvdb_id}/episodes/summary`,
-      method: 'get',
-      headers: {
-        'Authorization' : 'Bearer ' + req.token,
-        'Content-Type' : 'application/json'
-      }
-    };
+
+  function buildEpisodesPromise(tvdb_id, page) {
+    const options = setOptions(`/series/${tvdb_id}/episodes?page=${page}`, req.token);
 
     return new Promise((resolve, reject) => {
       request(options).then(resolve).catch(()=> resolve(null))
     })
   }
 
-  function buildPromiseToRequestEpisodes(tvdb_id, page) {
-    const options = {
-      url: `https://api.thetvdb.com/series/${tvdb_id}/episodes?page=${page}`,
-      method: 'get',
-      headers: {
-        'Authorization' : 'Bearer ' + req.token,
-        'Content-Type' : 'application/json'
-      }
-    };
+  function refactorTvdbEpisodeObj(obj, showId) {
+    const {
+      id,
+      airedSeasonID,
+      language,
+      absoluteNumber,
+      airedEpisodeNumber,
+      airedSeason,
+      dvdEpisodeNumber,
+      dvdSeason,
+      lastUpdated,
+      episodeName,
+      firstAired,
+      overview
+    } = obj
 
+    return {
+      tvdbId: id,
+      airedSeasonId: airedSeasonID,
+      language: language.overview,
+      absoluteNumber,
+      airedEpisodeNumber,
+      airedSeason,
+      dvdEpisodeNumber,
+      dvdSeason,
+      lastUpdated,
+      episodeName,
+      firstAired,
+      overview,
+      showId
+    }
+  }
+
+  function updateEpisodesForShow(tvdb_id) {
     return new Promise((resolve, reject) => {
-      request(options).then(resolve).catch(()=> resolve(null))
+      const summaryRequest = setOptions(`/series/${tvdb_id}/episodes/summary`, req.token);
+
+      return request(summaryRequest)
+        .then( summaryJSON => {
+          const episodesPromises = []
+          const summary = JSON.parse(summaryJSON);
+          const hundredsOfEpisodes = Math.ceil(summary.data.airedEpisodes / 100)
+
+          for (let j = 1; j <= hundredsOfEpisodes; j++) {
+            episodesPromises.push(
+              buildEpisodesPromise(tvdb_id, j)
+            )
+          }
+
+          return Promise.all(episodesPromises);
+        })
+        .then( responseJSON  => {
+          const rawEpisodes = JSON.parse(responseJSON).data;
+
+          const episodes = rawEpisodes.map(episode =>
+            refactorTvdbEpisodeObj(episode, tvdb_id)
+          );
+          resolve(episodes);
+        })
+
+
+        .catch( err => {console.log(err)})
     })
   }
 
-  const favoritesIds = []
+  const favoriteShows = [];
+  const epsToInsert = [];
+  let episodeIds;
+  let allEpisodes;
+  let epsToUpdate;
 
   knex('favorites')
     .select('shows.tvdb_id')
     .where('user_id', req.params.userId)
     .innerJoin('shows', 'favorites.show_id', 'shows.id')
-    .then( favoriteShows => {
-      const getEpisodesForShowPromises = favoriteShows.map(show => {
-        favoritesIds.push(show.tvdb_id);
-
-        return buildPromiseToRequestSummary(show.tvdb_id)
+    .then( favoritesList => {
+      const getEpisodesForShowPromises = favoritesList.map(({tvdb_id}) => {
+        favoriteShows.push(tvdb_id)
+        return updateEpisodesForShow(tvdb_id)
       });
 
       return Promise.all(getEpisodesForShowPromises)
     })
-    .then( summaries => {
-      const episodesForShowsPromises = []
-      for (let i = 0; i < summaries.length; i++) {
-        const summary = JSON.parse(summaries[i]);
-        const hundredsOfEpisodes = Math.ceil(summary.data.airedEpisodes / 100)
+    .then( episodesArrs => {
+      allEpisodes = episodesArrs.reduce( (acc, array) => acc.concat(array), []);
+      episodeIds = allEpisodes.map( episode => episode.tvdbId)
 
-        for (let j = 1; j <= hundredsOfEpisodes; j++) {
-          episodesForShowsPromises.push(
-            buildPromiseToRequestEpisodes(favoritesIds[i], j)
-          )
+      return knex('episodes')
+        .select('tvdb_id')
+        .whereIn('tvdb_id', episodeIds)
+    })
+    .then( existingRows => {
+      const existingIds = existingRows.map( row => row.tvdb_id )
+
+      epsToUpdate = allEpisodes.filter( episode => {
+        if ( existingIds.indexOf(episode.tvdbId) < 0 ) {
+          epsToInsert.push(decamelizeKeys(episode));
+
+          return false;
         }
+
+        return true;
+      })
+
+      return knex('episodes')
+        .insert(epsToInsert)
+    })
+    .then(() => {
+      return Promise.all( epsToUpdate.map( episode => {
+        const id = episode.tvdbId;
+
+        return knex('episodes')
+          .update(decamelizeKeys(episode))
+          .where('tvdb_id', id)
       }
-      return Promise.all(episodesForShowsPromises);
+      ));
     })
-    .then( episodes => {
-      const parsedEpisodes = episodes.map( episode => JSON.parse(episode).data);
-      res.send(parsedEpisodes);
+    .then((response) => {
+      return knex('episodes')
+        .whereIn('tvdb_id', episodeIds);
     })
+    .then((episodes) => {
+      res.send(episodes);
+    })
+
+    // .then( summaries => {
+    //   const episodesForShowsPromises = []
+    //   for (let i = 0; i < summaries.length; i++) {
+    //     const summary = JSON.parse(summaries[i]);
+    //     const hundredsOfEpisodes = Math.ceil(summary.data.airedEpisodes / 100)
+    //
+    //     for (let j = 1; j <= hundredsOfEpisodes; j++) {
+    //       episodesForShowsPromises.push(
+    //         buildEpisodesPromise(favoritesIds[i], j)
+    //       )
+    //     }
+    //   }
+    //   return Promise.all(episodesForShowsPromises);
+    // })
+    // .then( episodesList => { return knex.raw(buildRawQuery(episodesList))
+    //   function refactorTvdbEpisodeObj(obj) {
+    //     const {
+    //       id,
+    //       airedSeasonID,
+    //       absoluteNumber,
+    //       airedEpisodeNumber,
+    //       airedSeason,
+    //       dvdEpisodeNumber,
+    //       dvdSeason,
+    //       lastUpdated,
+    //       episodeName,
+    //       firstAired,
+    //       language,
+    //       overview
+    //     } = obj
+    //
+    //     return {
+    //       tvdb_id: id,
+    //       airedSeasonId: airedSeasonID,
+    //       absoluteNumber,
+    //       airedEpisodeNumber,
+    //       airedSeason,
+    //       dvdEpisodeNumber,
+    //       dvdSeason,
+    //       lastUpdated,
+    //       episodeName,
+    //       firstAired,
+    //       language,
+    //       overview
+    //     }
+    //   }
+    //
+    //   objectsToQueryValues(arr) {
+    //     const parsedEpisodeLists = []
+    //
+    //     for (let i = 0; i < episodesList.length; i++) {
+    //       const parsedList = JSON.parse(episodesList[i]).data;
+    //
+    //       const objectsToInsert = parsedList.map( episode {
+    //         if (episode.episodeName && episode.firstAired) {
+    //           return refactorTvdbEpisodeObj(episode);
+    //         }
+    //       })
+    //     }
+    //   }
+    //
+    //   function buildRawQuery(array) {
+    //   }
+    //
+    //   return knex('episodes')
+    //     .insert(decamelizeKeys(parsedEpisodeLists), '*')
+    // })
+    // .then( addedEpisodes => {
+    //   res.send(addedEpisodes);
+    // })
 
 })
 
