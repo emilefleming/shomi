@@ -1,31 +1,37 @@
-import React from 'react';
+import React, { Component } from 'react';
 import './SearchResults.css'
+import CardList from '../Cards/CardList.js'
 import ShowCard from '../ShowCard/ShowCard.js'
 
-function SearchResults(props) {
-  return (
-    <div className="SearchResults">
-      <ul>
-        {
-          props.searchResults.map(show => {
-            if (!show.status || show.status === 'Ended') {
-              return null;
-            }
+class SearchResults extends Component {
+  constructor(props) {
+    super(props)
 
-            show.isFavorite = props.favoritesIds.indexOf(show.id) > -1;
+    this.mapSearchResults = this.mapSearchResults.bind(this);
+  }
 
-            return (
-              <ShowCard
-                key={ show.id }
-                show={ show }
-                toggleShowFavorite={ props.toggleShowFavorite }/>
-            )
-          })
-        }
+  mapSearchResults(show) {
+    if (!show.status || show.status === 'Ended') {
+      return null;
+    }
 
-      </ul>
-    </div>
-  );
+    show.isFavorite = this.props.favoritesIds.indexOf(show.id) > -1;
+
+    return (
+      <ShowCard
+        key={ show.id }
+        show={ show }
+        toggleShowFavorite={ this.props.toggleShowFavorite }/>
+    )
+  }
+
+  render () {
+    return (
+      <div className="SearchResults">
+        <CardList mapCards={this.mapSearchResults} cardsList={this.props.searchResults}/>
+      </div>
+    )
+  }
 }
 
 export default SearchResults;

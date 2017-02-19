@@ -1,61 +1,38 @@
-import React, { Component } from 'react'
+import React from 'react'
 import './ShowCard.css';
+import Card from '../Cards/Card'
+import CardPoster from '../Cards/CardPoster'
 
-class ShowCard extends Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      hovering: false,
-      posterUrl: props.show.posterUrl || '/img/no_poster.png'
-    }
-
-    this.handleHover = this.handleHover.bind(this)
-  }
-
-  handleHover({ target }) {
-    this.setState({ hovering: !this.state.hovering });
-  }
-
-  render() {
-    const { show, toggleShowFavorite } = this.props;
-    return (
-      <li
-        className="ShowCard"
-        onMouseEnter={ this.handleHover }
-        onMouseLeave={ this.handleHover }
-      >
-        <img
-          src={ this.state.posterUrl }
-          alt={`${show.seriesName} Poster`}
+export default function ShowCard(props) {
+  const { show, toggleShowFavorite } = props;
+  return (
+    <Card>
+      <div className="ShowCard">
+        <CardPoster
+          url={ props.show.posterUrl }
+          alt={ show.seriesName }
         />
         <div className="details">
-          <h3>{ show.seriesName }</h3>
+          <h3>
+            { show.seriesName }
+            <i
+              className={
+                `mdi mdi-${show.isFavorite ? 'heart' : 'heart-outline'}`
+              }
+              onClick={ () => { toggleShowFavorite(show) } }
+            />
+          </h3>
           <div className="subdetails">
             { show.network }
             <em>
               { show.firstAired ? show.firstAired.slice(0, 4): '' }
             </em>
             <p>{ trimString(show.overview, 110)}</p>
-            {
-              this.state.hovering
-              ? <div className="hover-options">
-                  <div className="favorite-button">
-                    <i
-                      className={
-                        `mdi mdi-${show.isFavorite ? 'heart' : 'heart-outline'}`
-                      }
-                      onClick={ () => { toggleShowFavorite(show) } }
-                    /> { show.isFavorite ? 'unfollow' : 'follow' }
-                  </div>
-              </div>
-              : null
-            }
           </div>
         </div>
-      </li>
-      )
-  }
+    </div>
+    </Card>
+  )
 }
 
 function trimString(str, length) {
@@ -65,5 +42,3 @@ function trimString(str, length) {
 
   return `${str.slice(0, length - 3)}...`;
 }
-
-export default ShowCard;
