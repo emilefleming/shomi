@@ -25,7 +25,7 @@
     "request-promise": "^4.1.1"
   },
   "scripts": {
-    "start": "react-scripts start & nodemon server/bin/www",
+    "start": "react-scripts start & nodemon --watch server/ server/bin/www",
     "start-prod": "env PORT=3000 nodemon server/bin/www",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
