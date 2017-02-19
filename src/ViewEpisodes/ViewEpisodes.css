@@ -1,0 +1,38 @@
+.ViewEpisodes h2 {
+  text-align: center;
+}
+
+.ViewEpisodes .episode-card {
+  height: 100%;
+  display: flex;
+}
+
+.ViewEpisodes .episode-card .details {
+  margin: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.ViewEpisodes .episode-card h3 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 16px;
+  margin: 0 0 5px 0;
+}
+
+.ViewEpisodes .episode-card h4 {
+  font-size: 12px;
+  margin: 0 0 5px 0;
+}
+
+.ViewEpisodes .episode-card .season-episode {
+  text-transform: uppercase;
+  font-size: 12px;
+  color: #999;
+}
+
+.ViewEpisodes .episode-card .season-episode strong {
+  color: black;
+}
