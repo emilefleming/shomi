@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import moment from 'moment'
 import './ViewEpisodes.css'
 
 import CardList from '../Cards/CardList'
@@ -48,12 +49,11 @@ class ViewEpisodes extends Component {
           old: []
         };
         const todayRaw = new Date().setUTCHours(0,0,0,0)
-        const today = new Date(todayRaw).getTime()
+        const today = moment(new Date().toISOString().slice(0, 10));
 
         response.data.map( episode => {
           const { firstAired } = episode;
-          const airedDate = new Date(firstAired + 'T00:00:00.000Z').getTime();
-          const daysOld = (today - airedDate) / 1000 / 3600 / 24;
+          const daysOld = today.diff(moment(firstAired), 'days');
 
           if (daysOld <= -7) {
             return dates.future.push(episode)
