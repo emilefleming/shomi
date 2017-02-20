@@ -25,7 +25,7 @@ class ViewEpisodes extends Component {
             <div>
               <h3>{ episode.episodeName }</h3>
               <h4>{ episode.seriesName }</h4>
-              <h4>{ episode.firstAired }</h4>
+              <h4>{ episode.readableDate }</h4>
             </div>
             <div className="season-episode">
               Season <strong>{episode.airedSeason}</strong> episode <strong>{ episode.airedEpisodeNumber || '#'}</strong>
@@ -40,47 +40,74 @@ class ViewEpisodes extends Component {
     axios.get('/api/favorites/1/episodes')
       .then( response => {
         const dates = {
-          future: [],
-          soon: [],
-          tomorrow: [],
-          today: [],
-          yesterday: [],
-          recent: [],
-          old: []
+          future: {
+            title: 'Over 1 week ahead',
+            eps: []
+          },
+          soon: {
+            title: 'Week ahead',
+            eps: []
+          },
+          tomorrow: {
+            title: 'Tomorrow',
+            eps: []
+          },
+          today: {
+            title: 'Today',
+            eps: []
+          },
+          yesterday: {
+            title: 'Yesterday',
+            eps: []
+          },
+          recent: {
+            title: 'Week Ago',
+            eps: []
+          },
+          old: {
+            title: 'Over 1 week ago',
+            eps: []
+          }
         };
-        const todayRaw = new Date().setUTCHours(0,0,0,0)
         const today = moment(new Date().toISOString().slice(0, 10));
 
         response.data.map( episode => {
           const { firstAired } = episode;
-          const daysOld = today.diff(moment(firstAired), 'days');
+          const airedMoment = moment(firstAired);
+          const daysOld = today.diff(airedMoment, 'days');
+
+          episode.readableDate = airedMoment.format('dddd, MMMM Do')
 
           if (daysOld <= -7) {
-            return dates.future.push(episode)
+            return dates.future.eps.push(episode)
           }
 
           if (daysOld < -1 && daysOld > -7) {
-            return dates.soon.push(episode)
+            return dates.soon.eps.push(episode)
           }
 
           if (daysOld === -1) {
-            return dates.tomorrow.push(episode)
+            return dates.tomorrow.eps.push(episode)
           }
 
           if (daysOld === 0) {
-            return dates.today.push(episode)
+            return dates.today.eps.push(episode)
           }
 
           if (daysOld === 1) {
-            return dates.yesterday.push(episode)
+            return dates.yesterday.eps.push(episode)
           }
 
           if (daysOld > 0 && daysOld < 7) {
-            return dates.recent.push(episode)
+            return dates.recent.eps.push(episode)
+          }
+
+          if (today.year() !== airedMoment.year()) {
+            episode.readableDate = airedMoment.format('dddd, MMMM Do YYYY')
           }
 
           if (daysOld >= 7) {
-            return dates.old.push(episode)
+            return dates.old.eps.push(episode)
           }
 
           return null;
@@ -103,17 +130,18 @@ class ViewEpisodes extends Component {
             const openByDefault = ['today', 'recent', 'yesterday']
             let isOpen;
 
-            if (!this.state.dates[ele].length) {
+            if (!this.state.dates[ele].eps.length) {
               return null
             }
             if (openByDefault.indexOf(ele) > -1) {
               isOpen = true;
             }
 
+            console.log(ele.title);
             return (
-              <CategoryContainer key={ele} title={ele} open={isOpen}>
+              <CategoryContainer key={ele} title={this.state.dates[ele].title} open={isOpen}>
                 <CardList
-                  cardsList={this.state.dates[ele]}
+                  cardsList={this.state.dates[ele].eps}
                   mapCards={this.mapEpisodeCards}
                 />
               </CategoryContainer>
