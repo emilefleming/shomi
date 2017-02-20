@@ -1,7 +1,3 @@
-.ViewEpisodes h2 {
-  text-align: center;
-}
-
 .ViewEpisodes .episode-card {
   height: 100%;
   display: flex;

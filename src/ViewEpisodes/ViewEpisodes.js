@@ -5,6 +5,7 @@ import './ViewEpisodes.css'
 import CardList from '../Cards/CardList'
 import Card from '../Cards/Card'
 import CardPoster from '../Cards/CardPoster'
+import CategoryContainer from './CategoryContainer'
 
 class ViewEpisodes extends Component {
   constructor(props) {
@@ -99,18 +100,23 @@ class ViewEpisodes extends Component {
       <div className="ViewEpisodes">
         {
           Object.keys(this.state.dates).map( ele => {
+            const openByDefault = ['today', 'recent', 'yesterday']
+            let isOpen;
+
             if (!this.state.dates[ele].length) {
               return null
             }
+            if (openByDefault.indexOf(ele) > -1) {
+              isOpen = true;
+            }
 
             return (
-              <div key={ele}>
-                <h2>{ele}</h2>
+              <CategoryContainer key={ele} title={ele} open={isOpen}>
                 <CardList
                   cardsList={this.state.dates[ele]}
                   mapCards={this.mapEpisodeCards}
                 />
-              </div>
+              </CategoryContainer>
             )
           })
         }
