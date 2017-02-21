@@ -36,7 +36,7 @@ router.get('/', authorize, (req, res, next) => {
 })
 
 router.post('/', ev(validations.post), (req, res, next) => {
-  if (req.body.password !== req.body.verifyPassword) {
+  if (req.body.password !== req.body.confirmPassword) {
     return next(boom.create(400, 'Passwords do not match.'))
   }
 

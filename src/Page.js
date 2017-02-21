@@ -63,7 +63,15 @@ class App extends Component {
         return resolve(axios.post('/api/token', {
           email: this.state.loginEmail,
           password: this.state.loginPassword
-        }));
+        }))
+      }
+      else {
+        return resolve(axios.post('/api/users', {
+          email: this.state.email,
+          password: this.state.password,
+          username: this.state.username,
+          confirmPassword: this.state.confirmPassword
+        }))
       }
     })
     .then( response => {
@@ -74,6 +82,7 @@ class App extends Component {
       const favoritesIds = [...data].map(favorite => favorite.id)
       this.setState({ favorites: data, favoritesIds })
     })
+    .catch(err => { console.log(err.message) })
   }
 
   toggleShowFavorite(show) {
