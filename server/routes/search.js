@@ -46,7 +46,7 @@ router.get('/:str', getToken, (req, res, next) => {
       }
       return acc;
     });
-    return 'http://thetvdb.com/banners/' + bestPoster.thumbnail;
+    return 'https://thetvdb.com/banners/' + bestPoster.thumbnail;
   }
 
   const options = {
