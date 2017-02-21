@@ -18,23 +18,26 @@ class ViewEpisodes extends Component {
   }
 
   watchEpisode(id) {
-    axios.post('/api/episodes/watch/1', [id])
+    axios.post(`/api/episodes/watch/${this.props.userId}`, [id])
       .catch( err => { console.log(err) })
   }
 
   unwatchEpisode(id) {
     axios({
       method: 'delete',
-      url: '/api/episodes/watch/1',
+      url: `/api/episodes/watch/${this.props.userId}`,
       data: [id]
     })
       .catch( err => { console.log(err);})
   }
 
-  componentDidMount() {
-    axios.get('/api/favorites/1/episodes')
+  componentDidUpdate() {
+    if (this.state.allEpisodes.length || !this.props.userId) {
+      return;
+    }
+
+    axios.get(`/api/favorites/${this.props.userId}/episodes`)
       .then( response => {
-        console.log(response.data);
         this.setState({ allEpisodes: response.data });
         this.setState({ dates: sortEpisodes(this.state.allEpisodes) });
       })
