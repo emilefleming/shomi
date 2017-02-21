@@ -11,8 +11,7 @@ class App extends Component {
 
     this.state = {
       favorites: [],
-      favoritesIds: [],
-      userId: 1
+      favoritesIds: []
     }
 
     this.toggleSidebar = this.toggleSidebar.bind(this)
@@ -20,11 +19,17 @@ class App extends Component {
   }
 
   componentDidMount() {
-    axios.get(`/api/favorites/${this.state.userId}`)
+    axios.get('/api/users')
+      .then( response => {
+        this.setState({ userId: response.id })
+
+        return axios.get(`/api/favorites/${this.state.userId}`)
+      })
       .then(({ data }) => {
         const favoritesIds = [...data].map(favorite => favorite.id)
         this.setState({ favorites: data, favoritesIds })
       })
+      .catch( err => { return })
   }
 
   toggleSidebar() {
@@ -70,6 +75,7 @@ class App extends Component {
 
         {
           React.cloneElement(props.children, {
+            userId: this.state.userId,
             toggleShowFavorite: this.toggleShowFavorite,
             favorites: state.favorites,
             favoritesIds: state.favoritesIds

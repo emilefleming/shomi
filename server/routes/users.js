@@ -11,7 +11,7 @@ const { camelizeKeys, decamelizeKeys } = require('humps');
 const validations = require('../validations/users');
 
 const authorize = (req, res, next) => {
-  jqt.verify(req.cookies.token, process.env.JWT_KEY, (err, payload) => {
+  jwt.verify(req.cookies.token, process.env.JWT_KEY, (err, payload) => {
     if (err) {
       return next(boom.create(401, 'Unauthorized'))
     }
@@ -21,6 +21,18 @@ const authorize = (req, res, next) => {
     next();
   })
 }
+
+router.get('/', authorize, (req, res, next) => {
+  knex('users')
+    .where('id', req.claim.userId)
+    .first()
+    .then( row => {
+      user = camelizeKeys(row);
+      delete user.hashedPassword;
+      res.send(user);
+    })
+    .catch(err => next(err))
+})
 
 router.post('/',ev(validations.post), (req, res, next) => {
   if (req.body.password !== req.body.verifyPassword) {

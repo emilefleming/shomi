@@ -3,12 +3,14 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const app = express();
 const path = require('path');
+const cookieParser = require('cookie-parser');
 
 app.disable('x-powered-by');
 
 require('dotenv').config()
 app.use(bodyParser.json());
 app.use(morgan('dev'));
+app.use(cookieParser());
 
 app.use('/api/favorites', require('./routes/favorites'))
 app.use('/api/search', require('./routes/search'))
