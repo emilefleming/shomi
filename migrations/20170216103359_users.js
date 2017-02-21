@@ -3,6 +3,9 @@
 exports.up = function(knex) {
   return knex.schema.createTable('users', table => {
     table.increments();
+    table.string('username').notNullable().unique();
+    table.string('email').notNullable().unique();
+    table.specificType('hashed_password', 'char(60)').notNullable();
     table.timestamps(true, true);
   })
 };
