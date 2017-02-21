@@ -10,7 +10,8 @@ require('dotenv').config()
 app.use(bodyParser.json());
 app.use(morgan('dev'));
 
-app.use('/api', require('./routes/api'))
+app.use('/api/favorites', require('./routes/favorites'))
+app.use('/api/search', require('./routes/search'))
 
 app.use(express.static(path.resolve(__dirname, '..', 'build')));
 
