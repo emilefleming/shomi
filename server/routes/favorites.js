@@ -185,9 +185,10 @@ router.get('/:userId/episodes', getToken, (req, res, next) => {
         .whereIn('episodes.tvdb_id', episodeIds)
         .leftJoin('watched_episodes', function() {
           this.on('episodes.id', '=', 'watched_episodes.episode_id')
-          .on('watched_episodes.user_id', '=', knex.raw(req.params.userId))
+              .on('watched_episodes.user_id', '=', knex.raw(req.params.userId))
         })
         .leftJoin('shows', 'episodes.show_id', 'shows.id')
+        .where('watched_episodes.user_id', null)
     })
     .then((episodes) => {
       res.send(camelizeKeys(episodes));

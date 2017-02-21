@@ -27,6 +27,7 @@ class ViewEpisodes extends Component {
   componentDidMount() {
     axios.get('/api/favorites/1/episodes')
       .then( response => {
+        console.log(response.data);
         this.setState({ allEpisodes: response.data });
         this.setState({ dates: sortEpisodes(this.state.allEpisodes) });
       })
