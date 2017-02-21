@@ -16,4 +16,15 @@ router.post('/watch/:userId', (req, res, next) => {
     })
 })
 
+router.delete('/watch/:userId', (req, res, next) => {
+  knex('watched_episodes')
+    .del('*')
+    .whereIn('episode_id', req.body)
+    .andWhere('user_id', req.params.userId)
+    .then( rows => {
+      res.send(rows);
+    })
+    .catch( err => { console.log(err)})
+})
+
 module.exports = router;

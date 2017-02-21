@@ -45,6 +45,12 @@
   align-items: center;
   padding: 0 20px;
   color: #007DC5;
+  text-transform: uppercase;
+  width: 50px;
+}
+
+.episode-card .tools.watched {
+  color: #AAA;
 }
 
 .episode-card .tools i {

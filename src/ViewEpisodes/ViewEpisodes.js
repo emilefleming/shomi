@@ -11,17 +11,24 @@ class ViewEpisodes extends Component {
   constructor(props) {
     super(props)
 
-    this.state = { dates: {} };
+    this.state = { dates: {}, allEpisodes: [] };
 
     this.watchEpisode = this.watchEpisode.bind(this);
+    this.unwatchEpisode = this.unwatchEpisode.bind(this);
   }
 
   watchEpisode(id) {
-    console.log(id);
     axios.post('/api/episodes/watch/1', [id])
-      .then(response => {
-        console.log(response);
-      })
+      .catch( err => { console.log(err) })
+  }
+
+  unwatchEpisode(id) {
+    axios({
+      method: 'delete',
+      url: '/api/episodes/watch/1',
+      data: [id]
+    })
+      .catch( err => { console.log(err);})
   }
 
   componentDidMount() {
@@ -56,7 +63,7 @@ class ViewEpisodes extends Component {
               <CategoryContainer key={ele} title={this.state.dates[ele].title} open={isOpen}>
                 <CardList
                   cardsList={this.state.dates[ele].eps}
-                  mapCards={ episode => <EpisodeCard key={episode.id} episode={episode} watchEpisode={this.watchEpisode}/>}
+                  mapCards={ episode => <EpisodeCard key={episode.id} episode={episode} watchEpisode={this.watchEpisode} unwatchEpisode={this.unwatchEpisode}/>}
                 />
               </CategoryContainer>
             )
