@@ -71,7 +71,7 @@ class App extends Component {
           : null
         }
 
-        <Header toggleSidebar={ toggleSidebar } />
+        <Header toggleSidebar={ toggleSidebar } userId={this.state.userId}/>
 
         {
           React.cloneElement(props.children, {

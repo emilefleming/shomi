@@ -3,7 +3,7 @@ import './SearchForm.css'
 
 function SearchForm(props) {
   return (
-    <form onSubmit={props.handleSearchSubmit}>
+    <form onSubmit={props.handleSearchSubmit} className="SearchForm">
       <div className="SearchForm-input-wrapper">
         <input
           type="text"

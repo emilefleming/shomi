@@ -1,4 +1,4 @@
-form {
+ form.SearchForm {
   position: relative;
   height: 50px;
   border-top: 1px solid white;
@@ -6,7 +6,7 @@ form {
   box-sizing: border-box;
 }
 
-.SearchForm-input-wrapper {
+.SearchForm .SearchForm-input-wrapper {
   position: absolute;;
   top: 0;
   right: 50px;
@@ -18,7 +18,7 @@ form {
   align-items: center;
 }
 
-input {
+.SearchForm input {
   background: none;
   border: none;
   height: 100%;
@@ -27,11 +27,11 @@ input {
   font-size: 20px;
 }
 
-input:focus {
+.SearchForm input:focus {
   background-color: #F9F9F9;
 }
 
-button {
+.SearchForm button {
   position: absolute;
   height: 100%;
   right: 0;
@@ -39,8 +39,4 @@ button {
   background-color: #007DC5;
   color: white;
   border: none;
-}
-
-input:focus, button:focus {
-  outline: 0;
 }
