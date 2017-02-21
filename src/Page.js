@@ -4,6 +4,7 @@ import './App.css';
 
 import Header from './Header/Header.js';
 import Sidebar from './Sidebar/Sidebar.js';
+import LoginForm from './LoginForm/LoginForm.js';
 
 class App extends Component {
   constructor(props) {
@@ -15,6 +16,7 @@ class App extends Component {
     }
 
     this.toggleSidebar = this.toggleSidebar.bind(this)
+    this.toggleLogin = this.toggleLogin.bind(this)
     this.toggleShowFavorite = this.toggleShowFavorite.bind(this)
   }
 
@@ -29,11 +31,14 @@ class App extends Component {
         const favoritesIds = [...data].map(favorite => favorite.id)
         this.setState({ favorites: data, favoritesIds })
       })
-      .catch( err => { return })
+      .catch( err => { this.setState({ loginIsOpen: true }) })
   }
 
   toggleSidebar() {
     this.setState({ sideBarIsOpen: !this.state.sideBarIsOpen })
+  }
+  toggleLogin() {
+    this.setState({ loginIsOpen: !this.state.loginIsOpen })
   }
 
   toggleShowFavorite(show) {
@@ -71,7 +76,15 @@ class App extends Component {
           : null
         }
 
-        <Header toggleSidebar={ toggleSidebar } userId={this.state.userId}/>
+        <Header
+          toggleSidebar={ toggleSidebar }
+          toggleLogin={ this.toggleLogin }
+          userId={ this.state.userId }
+        />
+
+        {
+          this.state.loginIsOpen ? <LoginForm /> : null
+        }
 
         {
           React.cloneElement(props.children, {
