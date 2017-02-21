@@ -22,7 +22,7 @@ export default function EpisodeCard(props) {
         </div>
         {
           episode.hasAired
-          ? <div className="tools">
+          ? <div className="tools" onClick={() => {props.watchEpisode(episode.id)}}>
               <i className="mdi mdi-checkbox-marked-circle-outline"/>
               <h5>WATCH</h5>
             </div>

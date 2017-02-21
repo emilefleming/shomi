@@ -12,6 +12,16 @@ class ViewEpisodes extends Component {
     super(props)
 
     this.state = { dates: {} };
+
+    this.watchEpisode = this.watchEpisode.bind(this);
+  }
+
+  watchEpisode(id) {
+    console.log(id);
+    axios.post('/api/episodes/watch/1', [id])
+      .then(response => {
+        console.log(response);
+      })
   }
 
   componentDidMount() {
@@ -45,7 +55,7 @@ class ViewEpisodes extends Component {
               <CategoryContainer key={ele} title={this.state.dates[ele].title} open={isOpen}>
                 <CardList
                   cardsList={this.state.dates[ele].eps}
-                  mapCards={ episode => <EpisodeCard key={episode.id} episode={episode} />}
+                  mapCards={ episode => <EpisodeCard key={episode.id} episode={episode} watchEpisode={this.watchEpisode}/>}
                 />
               </CategoryContainer>
             )

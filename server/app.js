@@ -12,6 +12,7 @@ app.use(morgan('dev'));
 
 app.use('/api/favorites', require('./routes/favorites'))
 app.use('/api/search', require('./routes/search'))
+app.use('/api/episodes', require('./routes/episodes'))
 
 app.use(express.static(path.resolve(__dirname, '..', 'build')));
 
