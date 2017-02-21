@@ -14,6 +14,7 @@ app.use('/api/favorites', require('./routes/favorites'))
 app.use('/api/search', require('./routes/search'))
 app.use('/api/episodes', require('./routes/episodes'))
 app.use('/api/users', require('./routes/users'))
+app.use('/api/token', require('./routes/token'))
 
 app.use(express.static(path.resolve(__dirname, '..', 'build')));
 
