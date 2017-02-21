@@ -13,6 +13,7 @@ class App extends Component {
     this.state = {
       favorites: [],
       favoritesIds: [],
+      userId: null,
       loginEmail: '',
       loginPassword: '',
       email: '',
@@ -31,7 +32,7 @@ class App extends Component {
   componentDidMount() {
     axios.get('/api/users')
       .then( response => {
-        this.setState({ userId: response.id })
+        this.setState({ userId: response.data.id })
 
         return axios.get(`/api/favorites/${this.state.userId}`)
       })
@@ -59,16 +60,19 @@ class App extends Component {
     event.preventDefault();
     return new Promise((resolve, reject) => {
       if (event.target.name === 'loginForm') {
-        console.log('login');
-        resolve(axios.post('/api/token', {
+        return resolve(axios.post('/api/token', {
           email: this.state.loginEmail,
           password: this.state.loginPassword
         }));
       }
     })
     .then( response => {
-      console.log(response);
-      this.setState({ userId: response.data.id})
+      this.setState({ userId: response.data.id, loginIsOpen: false })
+      return axios.get(`/api/favorites/${this.state.userId}`)
+    })
+    .then(({ data }) => {
+      const favoritesIds = [...data].map(favorite => favorite.id)
+      this.setState({ favorites: data, favoritesIds })
     })
   }
 
