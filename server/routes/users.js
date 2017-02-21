@@ -23,18 +23,19 @@ const authorize = (req, res, next) => {
 }
 
 router.get('/', authorize, (req, res, next) => {
+  console.log(req.claim);
   knex('users')
     .where('id', req.claim.userId)
     .first()
     .then( row => {
-      user = camelizeKeys(row);
+      const user = camelizeKeys(row);
       delete user.hashedPassword;
       res.send(user);
     })
     .catch(err => next(err))
 })
 
-router.post('/',ev(validations.post), (req, res, next) => {
+router.post('/', ev(validations.post), (req, res, next) => {
   if (req.body.password !== req.body.verifyPassword) {
     return next(boom.create(400, 'Passwords do not match.'))
   }

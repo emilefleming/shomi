@@ -3,11 +3,14 @@
 const router = require('express').Router()
 const bcrypt = require('bcrypt-as-promised');
 const boom = require('boom');
+const ev = require('express-validation')
 const jwt = require('jsonwebtoken');
 const knex = require('../../knex');
 const { camelizeKeys } = require('humps');
 
-router.post('/', (req, res, next) => {
+const validations = require('../validations/token');
+
+router.post('/', ev(validations.post), (req, res, next) => {
   let user;
   const { email, password } = req.body;
 

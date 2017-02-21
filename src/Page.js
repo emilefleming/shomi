@@ -12,12 +12,20 @@ class App extends Component {
 
     this.state = {
       favorites: [],
-      favoritesIds: []
+      favoritesIds: [],
+      loginEmail: '',
+      loginPassword: '',
+      email: '',
+      password: '',
+      username: '',
+      confirmPassword: ''
     }
 
     this.toggleSidebar = this.toggleSidebar.bind(this)
     this.toggleLogin = this.toggleLogin.bind(this)
     this.toggleShowFavorite = this.toggleShowFavorite.bind(this)
+    this.handleChange = this.handleChange.bind(this)
+    this.submitLogin = this.submitLogin.bind(this)
   }
 
   componentDidMount() {
@@ -39,6 +47,29 @@ class App extends Component {
   }
   toggleLogin() {
     this.setState({ loginIsOpen: !this.state.loginIsOpen })
+  }
+
+  handleChange({ target }) {
+    this.setState({
+      [target.id]: target.value
+    });
+  }
+
+  submitLogin(event) {
+    event.preventDefault();
+    return new Promise((resolve, reject) => {
+      if (event.target.name === 'loginForm') {
+        console.log('login');
+        resolve(axios.post('/api/token', {
+          email: this.state.loginEmail,
+          password: this.state.loginPassword
+        }));
+      }
+    })
+    .then( response => {
+      console.log(response);
+      this.setState({ userId: response.data.id})
+    })
   }
 
   toggleShowFavorite(show) {
@@ -83,7 +114,18 @@ class App extends Component {
         />
 
         {
-          this.state.loginIsOpen ? <LoginForm /> : null
+          this.state.loginIsOpen
+            ? <LoginForm
+                loginEmail={this.state.loginEmail}
+                loginPassword={this.state.loginPassword}
+                email={this.state.email}
+                password={this.state.password}
+                username={this.state.username}
+                confirmPassword={this.state.confirmPassword}
+                handleChange={this.handleChange}
+                submitLogin={this.submitLogin}
+              />
+            : null
         }
 
         {
